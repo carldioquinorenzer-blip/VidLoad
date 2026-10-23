@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101114">
+  <title>VidLoad — Video Link Checker</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #101114;
+      color: #f5f5f5;
+      font-family: Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    main {
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+    }
+    .logo { font-size: 38px; font-weight: 800; }
+    .logo span { color: #64e6a5; }
+    p { color: #a7a7b0; line-height: 1.6; }
+    .panel {
+      margin-top: 28px;
+      padding: 22px;
+      background: #1b1c22;
+      border: 1px solid #30313a;
+      border-radius: 18px;
+    }
+    input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #41424b;
+      background: #111217;
+      color: white;
+      font-size: 16px;
+      outline-color: #64e6a5;
+    }
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 15px;
+      border: 0;
+      border-radius: 10px;
+      background: #64e6a5;
+      color: #101114;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    #result { overflow-wrap: anywhere; }
+    small { color: #858691; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="logo">Vid<span>Load</span></div>
+    <p>Check a video link in seconds.</p>
+    <div class="panel">
+      <input id="videoUrl" type="url"
+        placeholder="Paste a video URL here"
+        aria-label="Video URL">
+      <button id="checkBtn">Check link</button>
+      <p id="result" role="status">Paste a link to get started.</p>
+    </div>
+    <p><small>Use links you own or are authorized to download. This version checks links only; video downloading is not enabled yet.</small></p>
+  </main>
+  <script>
+    const input = document.getElementById("videoUrl");
+    const button = document.getElementById("checkBtn");
+    const result = document.getElementById("result");
+
+    button.addEventListener("click", async () => {
+      const value = input.value.trim();
+
+      if (!value) {
+        result.textContent = "Please paste a video URL first.";
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Checking...";
+      result.textContent = "Contacting VidLoad server...";
+
+      try {
+        const endpoint =
+          "https://vidload-api.onrender.com/api/check?url=" +
+          encodeURIComponent(value);
+
+        const response = await fetch(endpoint);
+        const data = await response.json();
+
+        result.textContent = data.message ||
+          (data.ok ? "Link checked." : "Could not check this link.");
+      } catch {
+        result.textContent =
+          "Couldn't reach the server. Wait a moment and try again.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Check link";
+      }
+    });
+  </script>
+</body>
+</html>
